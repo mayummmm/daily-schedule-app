@@ -34,4 +34,23 @@
             android:layout_marginStart="16dp" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/dailyTextview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/editDailyText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="記録を編集"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/saveBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="保存"
+        android:layout_marginTop="8dp" />
+
 </LinearLayout>
