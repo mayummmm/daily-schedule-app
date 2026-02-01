@@ -1,10 +1,11 @@
 package com.example.tracker;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.EditText;
+import android.widget.CheckBox;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,17 +24,16 @@ import java.util.HashMap;
 public class DailyActivity extends AppCompatActivity {
 
    //private Map<String,String> dailyDataMap;//日付ごとのデータ取得
-    private  Map<String, List<String>> dailyDataMap;//複数タスクへ
+    private  Map<String, List<Task>> dailyDataMap;//複数タスクへ
     private TextView dateText;
     private Calendar currentDate;
     private Button prevBtn;
     private Button nextBtn;
 
-    private TextView dailyTextView;
     private EditText editDailyText;
 
     private Button addBtn;
-    private Button saveBtn;
+    private LinearLayout taskContainer;
 
     @Override
     //onclickへは初期値を記載
@@ -51,11 +51,11 @@ public class DailyActivity extends AppCompatActivity {
 
         //viewの取得
         dateText = findViewById(R.id.dateText);
-        dailyTextView = findViewById(R.id.dailyTextview);
         prevBtn = findViewById(R.id.prevBtn);
         nextBtn = findViewById(R.id.nextBtn);
         editDailyText = findViewById(R.id.editDailyText);
         addBtn = findViewById(R.id.addBtn);
+        taskContainer = findViewById(R.id.taskContainer);
 
         //初期表示
         updateDateText();
@@ -85,12 +85,12 @@ public class DailyActivity extends AppCompatActivity {
                 return;
             }
 
-            List<String> list = dailyDataMap.get(key);
+            List<Task> list = dailyDataMap.get(key);
             if (list == null){
                list =new ArrayList<>();
             }
 
-            list.add(input);//追記
+            list.add(new Task(input));//追記
             dailyDataMap.put(key,list);//Map保存
             editDailyText.setText("");//入力欄を空に
             updateDailyText();//画面表示の更新
@@ -112,19 +112,29 @@ public class DailyActivity extends AppCompatActivity {
     //内容表示を更新
     private void updateDailyText(){
         String dateKey = getDateKey(currentDate);
-        List<String> list = dailyDataMap.get(dateKey);//タスク取得
+        List<Task> list = dailyDataMap.get(dateKey);//タスク取得
+
+        taskContainer.removeAllViews();//中身削除
+
         //タスクなしの場合
         if(list == null || list.isEmpty()){
-            dailyTextView.setText("タスクなし");
+            TextView emptyText = new TextView(DailyActivity.this);
+            emptyText.setText("タスクなし");
+            taskContainer.addView(emptyText);//コンテナ追加
             return;
         }
 
-        //表示形式
-        StringBuilder sb = new StringBuilder();
-        for(String task : list){
-            sb.append("・").append(task).append("\n");
+        //タスクあり
+        for(Task task : list){
+            CheckBox checkBox = new CheckBox(DailyActivity.this);
+            checkBox.setText(task.text);
+            checkBox.setChecked(task.checked);
+
+            checkBox.setOnCheckedChangeListener(((buttonView, isChecked) -> {
+                task.checked = isChecked;
+            }));
+
+            taskContainer.addView(checkBox);
         }
-        //表示
-        dailyTextView.setText(sb.toString());
     }
 }
