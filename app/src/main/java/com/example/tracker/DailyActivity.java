@@ -14,13 +14,16 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
 
 public class DailyActivity extends AppCompatActivity {
 
-   private Map<String,String> dailyDataMap;//日付ごとのデータ取得
+   //private Map<String,String> dailyDataMap;//日付ごとのデータ取得
+    private  Map<String, List<String>> dailyDataMap;//複数タスクへ
     private TextView dateText;
     private Calendar currentDate;
     private Button prevBtn;
@@ -28,6 +31,8 @@ public class DailyActivity extends AppCompatActivity {
 
     private TextView dailyTextView;
     private EditText editDailyText;
+
+    private Button addBtn;
     private Button saveBtn;
 
     @Override
@@ -41,8 +46,8 @@ public class DailyActivity extends AppCompatActivity {
         currentDate = Calendar.getInstance();
 
         //仮
-        dailyDataMap.put("2026/02/01","勉強１");
-        dailyDataMap.put("2026/02/02","勉強２");
+        //dailyDataMap.put("2026/02/01","勉強１");
+        //dailyDataMap.put("2026/02/02","勉強２");
 
         //viewの取得
         dateText = findViewById(R.id.dateText);
@@ -50,7 +55,7 @@ public class DailyActivity extends AppCompatActivity {
         prevBtn = findViewById(R.id.prevBtn);
         nextBtn = findViewById(R.id.nextBtn);
         editDailyText = findViewById(R.id.editDailyText);
-        saveBtn = findViewById(R.id.saveBtn);
+        addBtn = findViewById(R.id.addBtn);
 
         //初期表示
         updateDateText();
@@ -71,12 +76,24 @@ public class DailyActivity extends AppCompatActivity {
             updateDailyText(); //中身表示
         });
 
-        //保存ボタン
-        saveBtn.setOnClickListener(v -> {
+        //追加ボタン
+        addBtn.setOnClickListener(v -> {
             String key = getDateKey(currentDate);
-            String inputText = editDailyText.getText().toString();
-            dailyDataMap.put(key, inputText); // 上書き保存
-            updateDailyText(); // 再表示
+            String input = editDailyText.getText().toString().trim();
+
+            if (input.isEmpty()){
+                return;
+            }
+
+            List<String> list = dailyDataMap.get(key);
+            if (list == null){
+               list =new ArrayList<>();
+            }
+
+            list.add(input);//追記
+            dailyDataMap.put(key,list);//Map保存
+            editDailyText.setText("");//入力欄を空に
+            updateDailyText();//画面表示の更新
         });
     }
 
@@ -95,13 +112,19 @@ public class DailyActivity extends AppCompatActivity {
     //内容表示を更新
     private void updateDailyText(){
         String dateKey = getDateKey(currentDate);
-        String text = dailyDataMap.get(dateKey);
-        if(text == null){
-            text = "なし";
+        List<String> list = dailyDataMap.get(dateKey);//タスク取得
+        //タスクなしの場合
+        if(list == null || list.isEmpty()){
+            dailyTextView.setText("タスクなし");
+            return;
         }
-        dailyTextView.setText(text);
-        editDailyText.setText(text);
+
+        //表示形式
+        StringBuilder sb = new StringBuilder();
+        for(String task : list){
+            sb.append("・").append(task).append("\n");
+        }
+        //表示
+        dailyTextView.setText(sb.toString());
     }
-
-
 }

@@ -36,21 +36,37 @@
 
     <TextView
         android:id="@+id/dailyTextview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="start" />
 
     <EditText
         android:id="@+id/editDailyText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="記録を編集"
-        android:layout_marginTop="16dp" />
+        android:hint="追加タスク"
+        android:layout_marginTop="30dp" />
 
-    <Button
-        android:id="@+id/saveBtn"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="保存"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+    <Button
+        android:id="@+id/addBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="追加"
         android:layout_marginTop="8dp" />
+    <Button
+        android:id="@+id/dreatBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="削除"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="30dp"/>
+    </LinearLayout>
 
 </LinearLayout>
