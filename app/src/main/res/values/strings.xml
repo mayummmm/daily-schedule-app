@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Tracker</string>
+    <string name="button_press">回数:%d</string>
+</resources>
