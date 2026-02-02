@@ -68,5 +68,12 @@
         android:layout_marginTop="8dp"
         android:layout_marginStart="30dp"/>
     </LinearLayout>
+    <Button
+        android:id="@+id/backBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="戻る"
+        android:layout_gravity="end"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>

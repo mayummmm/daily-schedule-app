@@ -21,6 +21,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
 
+import android.content.SharedPreferences;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+
 public class DailyActivity extends AppCompatActivity {
 
    //private Map<String,String> dailyDataMap;//日付ごとのデータ取得
@@ -35,6 +40,8 @@ public class DailyActivity extends AppCompatActivity {
     private Button addBtn;
     private LinearLayout taskContainer;
 
+    private Button backBtn;
+
     @Override
     //onclickへは初期値を記載
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +49,8 @@ public class DailyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_daily);
 
         //初期化
-        dailyDataMap = new HashMap<>();
         currentDate = Calendar.getInstance();
+        loadData();   // ★ 起動時に復元
 
         //仮
         //dailyDataMap.put("2026/02/01","勉強１");
@@ -56,6 +63,7 @@ public class DailyActivity extends AppCompatActivity {
         editDailyText = findViewById(R.id.editDailyText);
         addBtn = findViewById(R.id.addBtn);
         taskContainer = findViewById(R.id.taskContainer);
+        backBtn = findViewById(R.id.backBtn);
 
         //初期表示
         updateDateText();
@@ -92,9 +100,17 @@ public class DailyActivity extends AppCompatActivity {
 
             list.add(new Task(input));//追記
             dailyDataMap.put(key,list);//Map保存
+
+            saveData();
+
             editDailyText.setText("");//入力欄を空に
             updateDailyText();//画面表示の更新
         });
+
+        backBtn.setOnClickListener(v -> {
+            finish();
+        });
+
     }
 
     //textviewへ表示
@@ -125,16 +141,66 @@ public class DailyActivity extends AppCompatActivity {
         }
 
         //タスクあり
-        for(Task task : list){
+        for (Task task : list) {
+            // 横並び用レイアウト
+            LinearLayout row = new LinearLayout(DailyActivity.this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+
+            // チェックボックス
             CheckBox checkBox = new CheckBox(DailyActivity.this);
             checkBox.setText(task.text);
             checkBox.setChecked(task.checked);
 
-            checkBox.setOnCheckedChangeListener(((buttonView, isChecked) -> {
+            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 task.checked = isChecked;
-            }));
+                saveData();
+            });
 
-            taskContainer.addView(checkBox);
+            // 削除ボタン（×）
+            TextView deleteBtn = new TextView(DailyActivity.this);
+            deleteBtn.setText("×");
+            deleteBtn.setTextSize(18);
+            deleteBtn.setPadding(24, 0, 24, 0);
+
+            deleteBtn.setOnClickListener(v -> {
+                list.remove(task);      // ★ このタスクだけ削除
+                updateDailyText();      // 再描画
+                saveData();
+            });
+
+            row.addView(checkBox);
+            row.addView(deleteBtn);
+
+            taskContainer.addView(row);
         }
     }
+    //保存用
+    private void saveData() {
+        SharedPreferences prefs = getSharedPreferences("task_prefs", MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = prefs.edit();
+
+        Gson gson = new Gson();
+        String json = gson.toJson(dailyDataMap);
+
+        editor.putString("task_data", json);
+        editor.apply();
+    }
+
+    //読み込み用
+    private void loadData() {
+        SharedPreferences prefs = getSharedPreferences("task_prefs", MODE_PRIVATE);
+
+        String json = prefs.getString("task_data", null);
+
+        if (json == null) {
+            dailyDataMap = new HashMap<>();
+            return;
+        }
+
+        Gson gson = new Gson();
+        Type type = new TypeToken<Map<String, List<Task>>>() {}.getType();
+        dailyDataMap = gson.fromJson(json, type);
+    }
+
 }
